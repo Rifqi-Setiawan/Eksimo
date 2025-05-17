@@ -7,7 +7,7 @@ import com.Ecommerce.tubes_PBO.model.Product;
 public interface ProductService {
     public String createProduct(Product product);
     public String updateProduct(Product product);
-    public String deleteProduct(Product product);
-    public String getProduct(Product product);
+    public String deleteProduct(Long productId);
+    public Product getProduct(Long productId);
     public List<Product> getAllProduct();
 }
