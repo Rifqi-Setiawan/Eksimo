@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.Ecommerce.tubes_PBO.exception.ProductNotFoundException;
 import com.Ecommerce.tubes_PBO.model.Product;
 import com.Ecommerce.tubes_PBO.repo.ProductRepository;
 import com.Ecommerce.tubes_PBO.service.ProductService;
@@ -37,6 +38,9 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Product getProduct(Long productId) {
+        if(productRepository.findById(productId).isEmpty()){
+            throw new ProductNotFoundException("Product tidak ditemukan");
+        }
         return productRepository.findById(productId).get();
     }
 
