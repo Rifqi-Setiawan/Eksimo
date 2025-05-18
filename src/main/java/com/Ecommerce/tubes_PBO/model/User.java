@@ -4,23 +4,23 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type")
+@Table(name = "users")
 @Getter
 @Setter
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "users")
-public abstract class User {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true, nullable = false)
+    
+    @Column(unique = true)
     private String username;
-
-    @Column(nullable = false)
+    
+    @Column
     private String password;
-
-    @Column(nullable = false)
+    
+    @Column
     private String role; 
-
 }

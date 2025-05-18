@@ -4,6 +4,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.Ecommerce.tubes_PBO.dto.LoginRequest;
 import com.Ecommerce.tubes_PBO.dto.UserResponse;
 import com.Ecommerce.tubes_PBO.model.Admin;
@@ -13,7 +15,7 @@ import com.Ecommerce.tubes_PBO.security.jwt.JwtTokenProvider;
 
 import jakarta.annotation.PostConstruct;
 import com.Ecommerce.tubes_PBO.exception.AuthException;
-
+@Service
 public class UserService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
@@ -65,7 +67,6 @@ public class UserService {
             admin.setUsername(ADMIN_USERNAME);
             admin.setPassword(passwordEncoder.encode(ADMIN_PASSWORD));
             admin.setRole("ROLE_ADMIN");
-            admin.setAdminCode("ADMIN_001");
             userRepository.save(admin);
         }
     }
