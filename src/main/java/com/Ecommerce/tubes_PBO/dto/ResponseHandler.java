@@ -1,4 +1,4 @@
-package com.Ecommerce.tubes_PBO.response;
+package com.Ecommerce.tubes_PBO.dto;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,0 +1,73 @@
+package com.Ecommerce.tubes_PBO.service;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.Ecommerce.tubes_PBO.dto.LoginRequest;
+import com.Ecommerce.tubes_PBO.dto.UserResponse;
+import com.Ecommerce.tubes_PBO.model.Admin;
+import com.Ecommerce.tubes_PBO.model.User;
+import com.Ecommerce.tubes_PBO.repo.UserRepository;
+import com.Ecommerce.tubes_PBO.security.jwt.JwtTokenProvider;
+
+import jakarta.annotation.PostConstruct;
+import com.Ecommerce.tubes_PBO.exception.AuthException;
+
+public class UserService {
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider tokenProvider;
+    private final PasswordEncoder passwordEncoder;
+    private static final String ADMIN_USERNAME="admin";
+    private static final String ADMIN_PASSWORD = "admin123";
+     public UserService(UserRepository userRepository, 
+                     AuthenticationManager authenticationManager,
+                     JwtTokenProvider tokenProvider,
+                     PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
+        this.tokenProvider = tokenProvider;
+        this.passwordEncoder = passwordEncoder;
+    }
+    public UserResponse login(LoginRequest request){
+        try{
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    request.getUsername(),
+                     request.getPassword())
+            );
+             SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            User user = userRepository.findByUsername(request.getUsername())
+            .orElseThrow(() -> new AuthException("User not found"));
+            
+            String token = tokenProvider.generateToken(authentication);
+            
+            return new UserResponse(
+                token,
+                user.getId(),
+                user.getUsername(),
+                user.getRole(),
+                "Login sukses"
+            );
+        }catch (Exception e) {
+            throw new AuthException("Invalid username or password");
+        }
+    }
+    public void logout() {
+        SecurityContextHolder.clearContext();
+    }
+    @PostConstruct
+    public void initAdminUser() {
+        if (!userRepository.existsByUsername(ADMIN_USERNAME)) {
+            Admin admin = new Admin();
+            admin.setUsername(ADMIN_USERNAME);
+            admin.setPassword(passwordEncoder.encode(ADMIN_PASSWORD));
+            admin.setRole("ROLE_ADMIN");
+            admin.setAdminCode("ADMIN_001");
+            userRepository.save(admin);
+        }
+    }
+
+}

@@ -2,8 +2,8 @@ package com.Ecommerce.tubes_PBO.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.Ecommerce.tubes_PBO.dto.ResponseHandler;
 import com.Ecommerce.tubes_PBO.model.Product;
-import com.Ecommerce.tubes_PBO.response.ResponseHandler;
 import com.Ecommerce.tubes_PBO.service.ProductService;
 
 import org.springframework.web.bind.annotation.RequestMapping;
