@@ -7,7 +7,6 @@ import com.Ecommerce.tubes_PBO.model.Product;
 import com.Ecommerce.tubes_PBO.service.ProductService;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 

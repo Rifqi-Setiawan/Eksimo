@@ -16,6 +16,7 @@ public class CustomerService {
 
     public Customer register(RegisterRequest request) {
         Customer customer = new Customer();
+        customer.setUsername(request.getUsername());
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
         customer.setRole("ROLE_CUSTOMER");
         customer.setCustId("CUST-" + System.currentTimeMillis());
