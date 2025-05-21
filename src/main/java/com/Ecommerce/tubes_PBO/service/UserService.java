@@ -27,8 +27,8 @@ public class UserService {
     private static final String ADMIN_PASSWORD = "admin123";
 
     public UserService(UserRepository userRepository,
-                       AuthenticationManager authenticationManager,
-                       PasswordEncoder passwordEncoder) {
+            AuthenticationManager authenticationManager,
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
@@ -36,25 +36,29 @@ public class UserService {
 
     public UserResponse login(LoginRequest request) {
         try {
+            System.out.println("Attempting to login user: " + request.getUsername());
+
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    request.getUsername(),
-                    request.getPassword()
-                )
-            );
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()));
+
+            System.out.println("Authentication successful: " + authentication.isAuthenticated());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             User user = userRepository.findByUsername(request.getUsername())
                     .orElseThrow(() -> new AuthException("User not found"));
 
+            System.out.println("User found: " + user.getUsername() + " with role: " + user.getRole());
+
             return new UserResponse(
                     user.getId(),
                     user.getUsername(),
                     user.getRole(),
-                    "Login sukses"
-            );
+                    "Login sukses");
         } catch (Exception e) {
+            System.out.println("Login error: " + e.getMessage());
             throw new AuthException("Invalid username or password");
         }
     }
@@ -69,7 +73,7 @@ public class UserService {
             Admin admin = new Admin();
             admin.setUsername(ADMIN_USERNAME);
             admin.setPassword(passwordEncoder.encode(ADMIN_PASSWORD));
-            admin.setRole("ROLE_ADMIN"); 
+            admin.setRole("ROLE_ADMIN");
             userRepository.save(admin);
         }
     }
