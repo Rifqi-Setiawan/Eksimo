@@ -15,6 +15,8 @@ import com.Ecommerce.tubes_PBO.model.User;
 import com.Ecommerce.tubes_PBO.repo.UserRepository;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Service
 public class UserService {
@@ -34,7 +36,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserResponse login(LoginRequest request) {
+    public UserResponse login(LoginRequest request, HttpServletRequest httpRequest) {
         try {
             System.out.println("Attempting to login user: " + request.getUsername());
 
@@ -43,10 +45,10 @@ public class UserService {
                             request.getUsername(),
                             request.getPassword()));
 
-            System.out.println("Authentication successful: " + authentication.isAuthenticated());
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            HttpSession session = httpRequest.getSession(true);
+            session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
             User user = userRepository.findByUsername(request.getUsername())
                     .orElseThrow(() -> new AuthException("User not found"));
 
@@ -63,8 +65,12 @@ public class UserService {
         }
     }
 
-    public void logout() {
+    public void logout(HttpServletRequest request) {
         SecurityContextHolder.clearContext();
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
     }
 
     @PostConstruct
@@ -73,7 +79,7 @@ public class UserService {
             Admin admin = new Admin();
             admin.setUsername(ADMIN_USERNAME);
             admin.setPassword(passwordEncoder.encode(ADMIN_PASSWORD));
-            admin.setRole("ROLE_ADMIN");
+            admin.setRole("ADMIN");
             userRepository.save(admin);
         }
     }

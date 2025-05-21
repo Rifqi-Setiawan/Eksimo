@@ -18,7 +18,7 @@ public class CustomerService {
         Customer customer = new Customer();
         customer.setUsername(request.getUsername());
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
-        customer.setRole("ROLE_CUSTOMER");
+        customer.setRole("CUSTOMER");
         customer.setCustId("CUST-" + System.currentTimeMillis());
         customer.setName(request.getName());
         customer.setAddress(request.getAddress());
