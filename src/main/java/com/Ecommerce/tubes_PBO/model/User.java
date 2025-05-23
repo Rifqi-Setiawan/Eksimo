@@ -1,12 +1,14 @@
 package com.Ecommerce.tubes_PBO.model;
 
+import com.Ecommerce.tubes_PBO.enums.UserRole;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "user_type")
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
 @Table(name = "users")
 @Getter
 @Setter
@@ -15,12 +17,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String username;
     
-    @Column
+    @Column(nullable = false)
     private String password;
     
-    @Column
-    private String role; 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private UserRole role;
 }

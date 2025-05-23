@@ -8,4 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Admin extends User {
+    public Admin() {
+        this.setRole(com.Ecommerce.tubes_PBO.enums.UserRole.ADMIN);
+    }
 }

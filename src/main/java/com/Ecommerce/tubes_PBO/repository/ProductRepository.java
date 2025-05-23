@@ -1,4 +1,4 @@
-package com.Ecommerce.tubes_PBO.repo;
+package com.Ecommerce.tubes_PBO.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.lang.Long;
