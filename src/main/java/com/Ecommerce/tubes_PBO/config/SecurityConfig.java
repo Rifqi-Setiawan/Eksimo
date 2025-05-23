@@ -26,28 +26,32 @@ public class SecurityConfig {
     private PasswordEncoder passwordEncoder;
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Nonaktifkan CSRF untuk API stateless (jika menggunakan token)
-            .exceptionHandling(exceptions -> exceptions
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)) // Mengembalikan 401 jika autentikasi gagal
-            )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Ideal untuk API & token, bisa IF_REQUIRED jika pakai session
-            )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() 
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")       // Endpoint khusus admin
-                .requestMatchers("/api/customer/**").hasRole("CUSTOMER") // Endpoint khusus customer
-                .anyRequest().authenticated() // Semua request lain butuh autentikasi
-            );
-            // Jika Anda menggunakan JWT, Anda akan menambahkan filter JWT di sini
-            // .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .csrf(csrf -> csrf.disable()) // Nonaktifkan CSRF untuk API stateless (jika menggunakan token)
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)) // Mengembalikan
+                                                                                                     // 401 jika
+                                                                                                     // autentikasi
+                                                                                                     // gagal
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN") // Endpoint khusus admin
+                        .requestMatchers("/api/customer/**").hasRole("CUSTOMER") // Endpoint khusus customer
+                        .anyRequest().authenticated() // Semua request lain butuh autentikasi
+                );
+        // Jika Anda menggunakan JWT, Anda akan menambahkan filter JWT di sini
+        // .addFilterBefore(jwtAuthenticationFilter(),
+        // UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
