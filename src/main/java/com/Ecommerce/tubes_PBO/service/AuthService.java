@@ -1,8 +1,9 @@
-// com/Ecommerce/tubes_PBO/service/AuthService.java
+// src/main/java/com/Ecommerce/tubes_PBO/service/AuthService.java
 package com.Ecommerce.tubes_PBO.service;
 
 import com.Ecommerce.tubes_PBO.dto.LoginRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.RegisterRequestDTO;
+import com.Ecommerce.tubes_PBO.enums.UserRole; 
 import com.Ecommerce.tubes_PBO.model.Customer;
 import com.Ecommerce.tubes_PBO.model.User;
 import com.Ecommerce.tubes_PBO.repository.UserRepository;
@@ -27,6 +28,13 @@ public class AuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    /**
+     * Registers a new customer.
+     *
+     * @param registerRequestDTO DTO containing registration data.
+     * @return The created User (Customer).
+     * @throws RuntimeException if the username is already taken.
+     */
     @Transactional
     public User registerCustomer(RegisterRequestDTO registerRequestDTO) {
         if (userRepository.existsByUsername(registerRequestDTO.getUsername())) {
@@ -44,14 +52,21 @@ public class AuthService {
         return userRepository.save(customer);
     }
 
+    /**
+     * Authenticates a user based on login credentials.
+     *
+     * @param loginRequestDTO DTO containing login data (username and password).
+     * @return Authentication object if successful.
+     * @throws org.springframework.security.core.AuthenticationException if authentication fails.
+     */
     public Authentication loginUser(LoginRequestDTO loginRequestDTO) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequestDTO.getUsername(),
-                        loginRequestDTO.getPassword()
+                        loginRequestDTO.getUsername(), 
+                        loginRequestDTO.getPassword() 
                 )
         );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        return authentication;
+        SecurityContextHolder.getContext().setAuthentication(authentication); //
+        return authentication; //
     }
 }

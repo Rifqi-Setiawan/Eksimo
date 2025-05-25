@@ -1,57 +1,51 @@
-// com/Ecommerce/tubes_PBO/controller/AuthController.java
 package com.Ecommerce.tubes_PBO.controller;
 
 import com.Ecommerce.tubes_PBO.dto.AuthResponseDTO;
 import com.Ecommerce.tubes_PBO.dto.LoginRequestDTO;
+import com.Ecommerce.tubes_PBO.dto.RegisterRequestDTO;
 import com.Ecommerce.tubes_PBO.model.User;
-import com.Ecommerce.tubes_PBO.security.CustomUserDetailsService;
+import com.Ecommerce.tubes_PBO.security.JwtUtil; // Import JwtUtil
 import com.Ecommerce.tubes_PBO.service.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager; // Import AuthenticationManager
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails; // Import UserDetails
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
-    private AuthService authService;
+    private AuthenticationManager authenticationManager; 
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private com.Ecommerce.tubes_PBO.security.CustomUserDetailsService userDetailsService; 
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequestDTO loginRequestDTO) {
         try {
-            Authentication authentication = authService.loginUser(loginRequestDTO);
-
-            CustomUserDetailsService.UserPrincipal userPrincipal =
-                (CustomUserDetailsService.UserPrincipal) authentication.getPrincipal();
-            User loggedInUser = userPrincipal.getUser();
-
-            return ResponseEntity.ok(new AuthResponseDTO("User logged in successfully!", loggedInUser.getUsername(), loggedInUser.getRole().name()));
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(), loginRequestDTO.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequestDTO.getUsername());
+            final String jwt = jwtUtil.generateToken(userDetails);
+            return ResponseEntity.ok(new AuthResponseDTO(jwt, userDetails.getUsername(), userDetails.getAuthorities()));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         } catch (Exception e) {
-            // Sebaiknya log error di sini
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed: Invalid credentials or user not found.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Login failed: " + e.getMessage());
         }
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<?> logoutUser(HttpServletRequest request, HttpServletResponse response) {
-        // Dapatkan informasi autentikasi pengguna saat ini
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null) {
-            new SecurityContextLogoutHandler().logout(request, response, authentication);
-        }
-        SecurityContextHolder.clearContext();
-
-        return ResponseEntity.ok(new AuthResponseDTO("User logged out successfully!", null, null));
-    }
 }

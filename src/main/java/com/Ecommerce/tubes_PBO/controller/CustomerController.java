@@ -22,8 +22,8 @@ public class CustomerController {
     @PostMapping("/register") 
     public ResponseEntity<?> registerCustomer(@RequestBody RegisterRequestDTO registerRequestDTO) {
         try {
-            User registeredUser = authService.registerCustomer(registerRequestDTO);
-            return ResponseEntity.ok(new AuthResponseDTO("Customer registered successfully!", registeredUser.getUsername(), "CUSTOMER"));
+            authService.registerCustomer(registerRequestDTO);
+            return ResponseEntity.ok("registrasi berhasil");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
