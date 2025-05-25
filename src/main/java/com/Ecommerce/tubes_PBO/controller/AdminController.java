@@ -3,11 +3,10 @@ package com.Ecommerce.tubes_PBO.controller;
 import com.Ecommerce.tubes_PBO.dto.ProductRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.ProductResponseDTO;
 import com.Ecommerce.tubes_PBO.service.ProductService;
-import jakarta.validation.Valid; // Untuk validasi DTO
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid; 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault; // Untuk default pagination
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

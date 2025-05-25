@@ -1,8 +1,9 @@
 package com.Ecommerce.tubes_PBO.model;
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "cart_items")
@@ -23,4 +24,7 @@ public class CartItem extends AuditAble {
 
     @Column(nullable = false)
     private Integer quantity;
+
+    @Column(nullable = false)
+    private Integer price;
 }

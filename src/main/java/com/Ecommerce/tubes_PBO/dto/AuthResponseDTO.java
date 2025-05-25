@@ -13,7 +13,7 @@ import java.util.Collection;
 @AllArgsConstructor
 public class AuthResponseDTO {
     private String accessToken;
-    private String username; // email
+    private String username; 
     private Collection<? extends GrantedAuthority> authorities;
     private String tokenType = "Bearer";
 

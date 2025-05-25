@@ -27,7 +27,12 @@ public class Customer extends User {
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Review> reviews;
+
     public Customer() {
         this.setRole(com.Ecommerce.tubes_PBO.enums.UserRole.CUSTOMER);
+        Cart newCart = new Cart();
+        newCart.setCustomer(this); 
+        this.cart = newCart;       
     }
+    
 }

@@ -24,6 +24,9 @@ public class Cart extends AuditAble {
 
     @Transient
     public Integer getTotalPrice() { 
+       if (items == null) {
+            return 0;
+        }
         return items.stream()
                 .mapToInt(item -> item.getProduct().getPrice() * item.getQuantity())
                 .sum();
