@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,27 +34,30 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService); 
+        authProvider.setPasswordEncoder(passwordEncoder); 
+        return authProvider;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Nonaktifkan CSRF untuk API stateless (jika menggunakan token)
+                .csrf(csrf -> csrf.disable())
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)) // Mengembalikan
-                                                                                                     // 401 jika
-                                                                                                     // autentikasi
-                                                                                                     // gagal
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN") // Endpoint khusus admin
-                        .requestMatchers("/api/customer/**").hasRole("CUSTOMER") // Endpoint khusus customer
-                        .anyRequest().authenticated() // Semua request lain butuh autentikasi
-                );
-        // Jika Anda menggunakan JWT, Anda akan menambahkan filter JWT di sini
-        // .addFilterBefore(jwtAuthenticationFilter(),
-        // UsernamePasswordAuthenticationFilter.class);
-
+                        .requestMatchers("/api/customer/register").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN") 
+                        .requestMatchers("/api/customer/**").hasRole("CUSTOMER") 
+                        .anyRequest().authenticated() 
+                )
+                .authenticationProvider(authenticationProvider());
         return http.build();
     }
 }

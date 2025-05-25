@@ -1,5 +1,55 @@
 package com.Ecommerce.tubes_PBO.controller;
 
+import com.Ecommerce.tubes_PBO.dto.ProductRequestDTO;
+import com.Ecommerce.tubes_PBO.dto.ProductResponseDTO;
+import com.Ecommerce.tubes_PBO.service.ProductService;
+import jakarta.validation.Valid; // Untuk validasi DTO
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault; // Untuk default pagination
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/admin") 
 public class AdminController {
 
+    private final ProductService productService;
+    public AdminController(ProductService productService) {
+        this.productService = productService;
+    }
+    @PostMapping("/products")
+    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO productRequestDTO) {
+        ProductResponseDTO createdProduct = productService.createProduct(productRequestDTO);
+        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+    }
+    @GetMapping("/products")
+    public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+        Page<ProductResponseDTO> products = productService.getAllProducts(pageable);
+        return ResponseEntity.ok(products);
+    }
+    @GetMapping("/products/{productId}")
+    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long productId) {
+        ProductResponseDTO product = productService.getProductById(productId);
+        return ResponseEntity.ok(product);
+    }
+    @PutMapping("/products/{productId}")
+    public ResponseEntity<ProductResponseDTO> updateProduct(
+            @PathVariable Long productId,
+            @Valid @RequestBody ProductRequestDTO productRequestDTO) {
+        ProductResponseDTO updatedProduct = productService.updateProduct(productId, productRequestDTO);
+        return ResponseEntity.ok(updatedProduct);
+    }
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsers() {
+        return ResponseEntity.ok("Daftar semua user (untuk admin)");
+    }
 }

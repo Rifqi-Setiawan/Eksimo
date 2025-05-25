@@ -23,7 +23,7 @@ public class DataInitializer implements CommandLineRunner {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private CategoryRepository categoryRepository; // Inject CategoryRepository
+    private CategoryRepository categoryRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -35,8 +35,6 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(admin);
             System.out.println("Default admin user created. 🧑‍💼");
         }
-
-        // Inisialisasi Kategori Produk Default
         initializeCategories();
     }
 
