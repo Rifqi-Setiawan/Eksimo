@@ -2,6 +2,7 @@ package com.Ecommerce.tubes_PBO.controller;
 
 import com.Ecommerce.tubes_PBO.dto.AddToCartRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.CartResponseDTO;
+import com.Ecommerce.tubes_PBO.dto.ProductListResponseDTO;
 import com.Ecommerce.tubes_PBO.dto.ProductResponseDTO; //
 import com.Ecommerce.tubes_PBO.dto.RegisterRequestDTO; //
 import com.Ecommerce.tubes_PBO.service.AuthService; //
@@ -45,20 +46,18 @@ public class CustomerController {
     }
 
     @GetMapping("/products") //
-    public ResponseEntity<Page<ProductResponseDTO>> getAllProducts( //
-            @PageableDefault(size = 10, sort = "id") Pageable pageable) { //
-        Page<ProductResponseDTO> products = productService.getAllProducts(pageable); //
-        return ResponseEntity.ok(products); //
+    public ResponseEntity<ProductListResponseDTO> getAllProducts(){ //
+            ProductListResponseDTO productData = productService.getAllProducts();
+        return ResponseEntity.ok(productData);
     }
+
     @GetMapping("/products/{productId}") //
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long productId) { //
         ProductResponseDTO product = productService.getProductById(productId); //
         return ResponseEntity.ok(product); //
     }
 
-    // --- Cart Endpoints ---
     @PostMapping("/cart/items")
-    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CartResponseDTO> addItemToCart(
             @Valid @RequestBody AddToCartRequestDTO requestDTO,
             Authentication authentication) {

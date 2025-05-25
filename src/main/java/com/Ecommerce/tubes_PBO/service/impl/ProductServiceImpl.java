@@ -1,5 +1,6 @@
 package com.Ecommerce.tubes_PBO.service.impl;
 
+import com.Ecommerce.tubes_PBO.dto.ProductListResponseDTO;
 import com.Ecommerce.tubes_PBO.dto.ProductRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.ProductResponseDTO;
 import com.Ecommerce.tubes_PBO.exception.ResourceNotFoundException;
@@ -8,6 +9,10 @@ import com.Ecommerce.tubes_PBO.model.Product;
 import com.Ecommerce.tubes_PBO.repository.CategoryRepository;
 import com.Ecommerce.tubes_PBO.repository.ProductRepository;
 import com.Ecommerce.tubes_PBO.service.ProductService;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +41,6 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(productRequestDTO.getStock());
         product.setCategory(category);
         product.setImages(productRequestDTO.getImages());
-        // Inisialisasi default lainnya jika ada (misal averageRating)
         product.setAverageRating(0.0);
 
         Product savedProduct = productRepository.save(product);
@@ -52,10 +56,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<ProductResponseDTO> getAllProducts(Pageable pageable) {
-        Page<Product> products = productRepository.findAll(pageable);
-        return products.map(this::mapToProductResponseDTO);
+    @Transactional(readOnly = true) 
+    public ProductListResponseDTO  getAllProducts() {
+         List<Product> productList = productRepository.findAll();
+        List<ProductResponseDTO> productDTOs = productList.stream()
+                                                     .map(this::mapToProductResponseDTO)
+                                                     .collect(Collectors.toList());
+        long totalProducts = productRepository.count(); 
+        return new ProductListResponseDTO(productDTOs, totalProducts);
     }
 
     @Override
@@ -73,7 +81,6 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(productRequestDTO.getStock());
         product.setCategory(category);
         product.setImages(productRequestDTO.getImages());
-        // Tidak update createdAt, averageRating (akan diupdate oleh mekanisme review)
 
         Product updatedProduct = productRepository.save(product);
         return mapToProductResponseDTO(updatedProduct);
