@@ -2,18 +2,15 @@ package com.Ecommerce.tubes_PBO.controller;
 
 import com.Ecommerce.tubes_PBO.dto.AuthResponseDTO;
 import com.Ecommerce.tubes_PBO.dto.LoginRequestDTO;
-import com.Ecommerce.tubes_PBO.dto.RegisterRequestDTO;
-import com.Ecommerce.tubes_PBO.model.User;
-import com.Ecommerce.tubes_PBO.security.JwtUtil; // Import JwtUtil
-import com.Ecommerce.tubes_PBO.service.AuthService;
+import com.Ecommerce.tubes_PBO.security.JwtUtil; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager; // Import AuthenticationManager
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails; // Import UserDetails
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 

@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,9 +26,6 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartRepository cartRepository;
-
-    @Autowired
-    private CartItemRepository cartItemRepository;
 
     @Override
     @Transactional
@@ -52,17 +47,11 @@ public class CartServiceImpl implements CartService {
         }
 
         Cart cart = customer.getCart();
-        // Seharusnya cart sudah ada karena diinisialisasi di konstruktor Customer
         if (cart == null) {
-            // Fallback jika konstruktor belum diupdate atau ada kasus lain
             cart = new Cart();
             cart.setCustomer(customer);
-            customer.setCart(cart); // Pastikan relasi dua arah
-            // cartRepository.save(cart); // Akan tersimpan saat customer disimpan jika
-            // cascade benar
+            customer.setCart(cart);
         }
-
-        // Cek apakah item produk ini sudah ada di list items cart
         CartItem existingItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(product.getId()))
                 .findFirst()
@@ -75,31 +64,14 @@ public class CartServiceImpl implements CartService {
                         + ") is not sufficient for updated total quantity (" + newQuantity + ").");
             }
             existingItem.setQuantity(newQuantity);
-            // existingItem.setPrice(product.getPrice()); // Update harga jika harga produk
-            // berubah? Atau biarkan harga saat pertama kali masuk?
-            // Umumnya harga di cart item tidak diupdate otomatis.
         } else {
             CartItem newItem = new CartItem();
             newItem.setCart(cart);
             newItem.setProduct(product);
             newItem.setQuantity(requestDTO.getQuantity());
-            newItem.setPrice(product.getPrice()); // Simpan harga produk saat ini
+            newItem.setPrice(product.getPrice()); 
             cart.getItems().add(newItem);
         }
-
-        // Jika totalPrice di Cart adalah kolom database, panggil recalculate dan save
-        // cart.recalculateTotalPrice();
-        // cartRepository.save(cart); // Cascade akan menyimpan CartItems juga
-
-        // Karena Cart di-cascade dari Customer, menyimpan Customer akan menyimpan Cart
-        // & CartItems.
-        // Atau, jika Cart diambil langsung, simpan Cart.
-        // Untuk memastikan, kita bisa save Cart secara eksplisit jika diambil terpisah
-        // atau dimodifikasi.
-        // Jika Cart selalu diakses melalui customer.getCart(), maka perubahan pada Cart
-        // (seperti add item) akan tersimpan
-        // saat transaksi selesai jika customer adalah managed entity.
-        // Untuk lebih eksplisit, jika Cart adalah entitas yang di-manage:
         cartRepository.save(cart);
 
         return mapCartToResponseDTO(cart);
@@ -139,10 +111,7 @@ public class CartServiceImpl implements CartService {
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem", "id", cartItemId + " in user's cart"));
 
-        cart.getItems().remove(itemToRemove); // orphanRemoval=true akan menghapus CartItem dari DB
-
-        // Jika totalPrice di Cart adalah kolom database, panggil recalculate dan save
-        // cart.recalculateTotalPrice();
+        cart.getItems().remove(itemToRemove); 
         cartRepository.save(cart);
 
         return mapCartToResponseDTO(cart);
@@ -152,7 +121,6 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public CartResponseDTO updateItemQuantity(String username, Long cartItemId, Integer newQuantity) {
         if (newQuantity <= 0) {
-            // Jika kuantitas baru 0 atau kurang, anggap sebagai penghapusan item
             return removeItemFromCart(username, cartItemId);
         }
 
@@ -173,16 +141,10 @@ public class CartServiceImpl implements CartService {
         }
 
         cartItem.setQuantity(newQuantity);
-
-        // Jika totalPrice di Cart adalah kolom database, panggil recalculate dan save
-        // cart.recalculateTotalPrice();
-        cartRepository.save(cart); // Menyimpan perubahan pada Cart (dan CartItem via cascade atau karena CartItem
-                                   // adalah managed entity)
+        cartRepository.save(cart); 
 
         return mapCartToResponseDTO(cart);
     }
-
-    // Helper method untuk mapping
     private CartResponseDTO mapCartToResponseDTO(Cart cart) {
         CartResponseDTO dto = new CartResponseDTO(); //
         dto.setCartId(cart.getId()); //
@@ -191,7 +153,7 @@ public class CartServiceImpl implements CartService {
             CartItemResponseDTO itemDto = new CartItemResponseDTO();
             itemDto.setCartItemId(item.getId()); //
 
-            Product product = item.getProduct(); // Product di CartItem EAGER fetched atau di-load jika LAZY
+            Product product = item.getProduct(); // 
             itemDto.setProductId(product.getId()); //
             itemDto.setProductName(product.getName()); //
 
@@ -199,24 +161,24 @@ public class CartServiceImpl implements CartService {
             if (product.getImages() != null && !product.getImages().isEmpty()) { //
                 itemDto.setProductImageUrl(product.getImages().get(0)); //
             } else {
-                itemDto.setProductImageUrl(null); // Atau string kosong jika prefer
+                itemDto.setProductImageUrl(null); // 
             }
 
             itemDto.setQuantity(item.getQuantity()); //
-            itemDto.setPricePerUnit(item.getPrice()); // item.getPrice() adalah Integer dari CartItem.price
+            itemDto.setPricePerUnit(item.getPrice()); //
 
             // Kalkulasi subtotal sebagai Integer
             if (item.getPrice() != null && item.getQuantity() != null) {
                 itemDto.setSubtotal(item.getPrice() * item.getQuantity()); //
             } else {
-                itemDto.setSubtotal(0); // Default jika price atau quantity null
+                itemDto.setSubtotal(0); //
             }
 
             return itemDto;
         }).collect(Collectors.toList());
 
         dto.setItems(itemDTOs); //
-        dto.setGrandTotal(cart.getTotalPrice()); // Menggunakan method transient dari Cart, yang mengembalikan Integer
+        dto.setGrandTotal(cart.getTotalPrice()); // 
         dto.setTotalUniqueItems(cart.getItems().size()); //
         dto.setTotalItemUnits(cart.getItems().stream().mapToInt(CartItem::getQuantity).sum()); //
 

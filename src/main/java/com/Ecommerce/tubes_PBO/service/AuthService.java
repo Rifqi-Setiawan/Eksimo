@@ -3,7 +3,6 @@ package com.Ecommerce.tubes_PBO.service;
 
 import com.Ecommerce.tubes_PBO.dto.LoginRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.RegisterRequestDTO;
-import com.Ecommerce.tubes_PBO.enums.UserRole; 
 import com.Ecommerce.tubes_PBO.model.Customer;
 import com.Ecommerce.tubes_PBO.model.User;
 import com.Ecommerce.tubes_PBO.repository.UserRepository;

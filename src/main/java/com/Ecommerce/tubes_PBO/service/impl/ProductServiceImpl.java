@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +30,8 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
         Category category = categoryRepository.findById(productRequestDTO.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + productRequestDTO.getCategoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Category not found with id: " + productRequestDTO.getCategoryId()));
 
         Product product = new Product();
         product.setName(productRequestDTO.getName());
@@ -56,13 +55,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional(readOnly = true) 
-    public ProductListResponseDTO  getAllProducts() {
-         List<Product> productList = productRepository.findAll();
+    @Transactional(readOnly = true)
+    public ProductListResponseDTO getAllProducts() {
+        List<Product> productList = productRepository.findAll();
         List<ProductResponseDTO> productDTOs = productList.stream()
-                                                     .map(this::mapToProductResponseDTO)
-                                                     .collect(Collectors.toList());
-        long totalProducts = productRepository.count(); 
+                .map(this::mapToProductResponseDTO)
+                .collect(Collectors.toList());
+        long totalProducts = productRepository.count();
         return new ProductListResponseDTO(productDTOs, totalProducts);
     }
 
@@ -73,7 +72,8 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
 
         Category category = categoryRepository.findById(productRequestDTO.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + productRequestDTO.getCategoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Category not found with id: " + productRequestDTO.getCategoryId()));
 
         product.setName(productRequestDTO.getName());
         product.setDescription(productRequestDTO.getDescription());
@@ -95,7 +95,6 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(productId);
     }
 
-    // Helper method untuk mapping Entity ke DTO
     private ProductResponseDTO mapToProductResponseDTO(Product product) {
         ProductResponseDTO dto = new ProductResponseDTO();
         dto.setId(product.getId());
@@ -115,5 +114,16 @@ public class ProductServiceImpl implements ProductService {
             dto.setCategory(categoryInfo);
         }
         return dto;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getProductsByCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
+        List<Product> products = productRepository.findByCategory(category);
+        return products.stream()
+                .map(this::mapToProductResponseDTO)
+                .collect(Collectors.toList());
     }
 }
