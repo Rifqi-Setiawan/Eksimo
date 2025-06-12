@@ -46,17 +46,17 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeCategories() {
-        List<String> categoryNames = Arrays.asList("Accesories", "Tops", "Outer");
+    List<String> categoryNames = Arrays.asList("Baju", "Celana", "Jaket"); // <-- perbaiki di sini
 
-        for (String name : categoryNames) {
-            if (!categoryRepository.findByName(name).isPresent()) {
-                Category category = new Category();
-                category.setName(name);
-                categoryRepository.save(category);
-                System.out.println("Created category: " + name + " 🏷️");
-            }
+    for (String name : categoryNames) {
+        if (!categoryRepository.findByName(name).isPresent()) {
+            Category category = new Category();
+            category.setName(name);
+            categoryRepository.save(category);
+            System.out.println("Created category: " + name + " 🏷️");
         }
     }
+}
 
     private void initializeProducts() {
         // Ambil kategori dari database

@@ -2,10 +2,7 @@ package com.Ecommerce.tubes_PBO.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Table(name = "products")
@@ -28,7 +25,6 @@ public class Product extends AuditAble {
     @Column(nullable = false)
     private Integer stock;
 
-    @ElementCollection 
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image")
     private String image;
