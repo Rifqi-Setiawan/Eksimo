@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.file.*;
+import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -27,24 +31,39 @@ public class ProductServiceImpl implements ProductService {
     private CategoryRepository categoryRepository;
 
     @Override
-    @Transactional
-    public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
-        Category category = categoryRepository.findById(productRequestDTO.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Category not found with id: " + productRequestDTO.getCategoryId()));
+@Transactional
+public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO, MultipartFile image) {
+    Category category = categoryRepository.findById(productRequestDTO.getCategoryId())
+            .orElseThrow(() -> new ResourceNotFoundException(
+                    "Category not found with id: " + productRequestDTO.getCategoryId()));
 
-        Product product = new Product();
-        product.setName(productRequestDTO.getName());
-        product.setDescription(productRequestDTO.getDescription());
-        product.setPrice(productRequestDTO.getPrice());
-        product.setStock(productRequestDTO.getStock());
-        product.setCategory(category);
-        product.setImages(productRequestDTO.getImages());
-        product.setAverageRating(0.0);
+    Product product = new Product();
+    product.setName(productRequestDTO.getName());
+    product.setDescription(productRequestDTO.getDescription());
+    product.setPrice(productRequestDTO.getPrice());
+    product.setStock(productRequestDTO.getStock());
+    product.setCategory(category);
+    product.setAverageRating(0.0);
 
-        Product savedProduct = productRepository.save(product);
-        return mapToProductResponseDTO(savedProduct);
+    // Simpan file gambar
+    String imagePath = null;
+    if (image != null && !image.isEmpty()) {
+        try {
+            String uploadDir = "../frontend/public/images/products/";
+            String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            Path filePath = Paths.get(uploadDir, filename);
+            Files.createDirectories(filePath.getParent());
+            image.transferTo(filePath.toFile());
+            imagePath = "/images/products/" + filename;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save image file", e);
+        }
     }
+    product.setImage(imagePath);
+
+    Product savedProduct = productRepository.save(product);
+    return mapToProductResponseDTO(savedProduct);
+}
 
     @Override
     @Transactional(readOnly = true)
@@ -80,19 +99,10 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productRequestDTO.getPrice());
         product.setStock(productRequestDTO.getStock());
         product.setCategory(category);
-        product.setImages(productRequestDTO.getImages());
+        product.setImage(productRequestDTO.getImage()); // gunakan image, bukan images
 
         Product updatedProduct = productRepository.save(product);
         return mapToProductResponseDTO(updatedProduct);
-    }
-
-    @Override
-    @Transactional
-    public void deleteProduct(Long productId) {
-        if (!productRepository.existsById(productId)) {
-            throw new ResourceNotFoundException("Product not found with id: " + productId);
-        }
-        productRepository.deleteById(productId);
     }
 
     private ProductResponseDTO mapToProductResponseDTO(Product product) {
@@ -102,7 +112,7 @@ public class ProductServiceImpl implements ProductService {
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrice());
         dto.setStock(product.getStock());
-        dto.setImages(product.getImages());
+        dto.setImage(product.getImage()); // gunakan image, bukan images
         dto.setAverageRating(product.getAverageRating());
         dto.setCreatedAt(product.getCreatedAt());
         dto.setUpdatedAt(product.getUpdatedAt());
@@ -114,6 +124,15 @@ public class ProductServiceImpl implements ProductService {
             dto.setCategory(categoryInfo);
         }
         return dto;
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduct(Long productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new ResourceNotFoundException("Product not found with id: " + productId);
+        }
+        productRepository.deleteById(productId);
     }
 
     @Override

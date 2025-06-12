@@ -2,8 +2,6 @@ package com.Ecommerce.tubes_PBO.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import java.util.List;
-
 @Data
 public class ProductRequestDTO {
 
@@ -25,5 +23,5 @@ public class ProductRequestDTO {
     @NotNull(message = "Category ID cannot be null")
     private Long categoryId; 
 
-    private List<String> images;
+    private String image;
 }

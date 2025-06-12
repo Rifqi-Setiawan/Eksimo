@@ -1,7 +1,6 @@
 package com.Ecommerce.tubes_PBO.dto;
 import lombok.Data;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 public class ProductResponseDTO {
@@ -11,7 +10,7 @@ public class ProductResponseDTO {
     private Integer price;
     private Integer stock;
     private CategoryInfoDTO category; 
-    private List<String> images;
+    private String image; // ubah dari images ke image
     private Double averageRating;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

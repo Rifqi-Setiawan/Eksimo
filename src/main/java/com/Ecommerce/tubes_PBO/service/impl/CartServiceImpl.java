@@ -153,25 +153,21 @@ public class CartServiceImpl implements CartService {
             CartItemResponseDTO itemDto = new CartItemResponseDTO();
             itemDto.setCartItemId(item.getId()); //
 
-            Product product = item.getProduct(); // 
-            itemDto.setProductId(product.getId()); //
-            itemDto.setProductName(product.getName()); //
+            Product product = item.getProduct();
+            itemDto.setProductId(product.getId());
+            itemDto.setProductName(product.getName());
 
-            // Mengambil gambar pertama dari list 'images' jika ada
-            if (product.getImages() != null && !product.getImages().isEmpty()) { //
-                itemDto.setProductImageUrl(product.getImages().get(0)); //
-            } else {
-                itemDto.setProductImageUrl(null); // 
-            }
+            // Perbaikan: ambil gambar produk (String)
+            itemDto.setProductImageUrl(product.getImage());
 
-            itemDto.setQuantity(item.getQuantity()); //
-            itemDto.setPricePerUnit(item.getPrice()); //
+            itemDto.setQuantity(item.getQuantity());
+            itemDto.setPricePerUnit(item.getPrice());
 
             // Kalkulasi subtotal sebagai Integer
             if (item.getPrice() != null && item.getQuantity() != null) {
-                itemDto.setSubtotal(item.getPrice() * item.getQuantity()); //
+                itemDto.setSubtotal(item.getPrice() * item.getQuantity());
             } else {
-                itemDto.setSubtotal(0); //
+                itemDto.setSubtotal(0);
             }
 
             return itemDto;

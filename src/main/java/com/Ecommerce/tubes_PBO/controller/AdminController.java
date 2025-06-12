@@ -8,7 +8,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -19,9 +20,11 @@ public class AdminController {
         this.productService = productService;
     }
 
-    @PostMapping("/products")
-    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO productRequestDTO) {
-        ProductResponseDTO createdProduct = productService.createProduct(productRequestDTO);
+    @PostMapping(value = "/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponseDTO> createProduct(
+            @RequestPart("product") @Valid ProductRequestDTO productRequestDTO,
+            @RequestPart("image") MultipartFile image) {
+        ProductResponseDTO createdProduct = productService.createProduct(productRequestDTO, image);
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
 
