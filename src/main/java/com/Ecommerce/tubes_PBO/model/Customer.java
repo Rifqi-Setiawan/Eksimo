@@ -5,7 +5,7 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@DiscriminatorValue("CUSTOMER") // Nilai untuk kolom user_type jika user adalah Customer
+@DiscriminatorValue("CUSTOMER") 
 @Getter
 @Setter
 public class Customer extends User {

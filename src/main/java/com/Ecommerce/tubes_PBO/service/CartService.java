@@ -7,4 +7,5 @@ public interface CartService {
     CartResponseDTO getCartByUsername(String username);
     CartResponseDTO removeItemFromCart(String username, Long cartItemId);
     CartResponseDTO updateItemQuantity(String username, Long cartItemId, Integer newQuantity);
+    void clearCart(String username);
 }

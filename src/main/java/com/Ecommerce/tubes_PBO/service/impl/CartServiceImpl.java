@@ -69,7 +69,7 @@ public class CartServiceImpl implements CartService {
             newItem.setCart(cart);
             newItem.setProduct(product);
             newItem.setQuantity(requestDTO.getQuantity());
-            newItem.setPrice(product.getPrice()); 
+            newItem.setPrice(product.getPrice());
             cart.getItems().add(newItem);
         }
         cartRepository.save(cart);
@@ -111,7 +111,7 @@ public class CartServiceImpl implements CartService {
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem", "id", cartItemId + " in user's cart"));
 
-        cart.getItems().remove(itemToRemove); 
+        cart.getItems().remove(itemToRemove);
         cartRepository.save(cart);
 
         return mapCartToResponseDTO(cart);
@@ -141,10 +141,11 @@ public class CartServiceImpl implements CartService {
         }
 
         cartItem.setQuantity(newQuantity);
-        cartRepository.save(cart); 
+        cartRepository.save(cart);
 
         return mapCartToResponseDTO(cart);
     }
+
     private CartResponseDTO mapCartToResponseDTO(Cart cart) {
         CartResponseDTO dto = new CartResponseDTO(); //
         dto.setCartId(cart.getId()); //
@@ -174,10 +175,26 @@ public class CartServiceImpl implements CartService {
         }).collect(Collectors.toList());
 
         dto.setItems(itemDTOs); //
-        dto.setGrandTotal(cart.getTotalPrice()); // 
+        dto.setGrandTotal(cart.getTotalPrice()); //
         dto.setTotalUniqueItems(cart.getItems().size()); //
         dto.setTotalItemUnits(cart.getItems().stream().mapToInt(CartItem::getQuantity).sum()); //
 
         return dto;
+    }
+
+    @Override
+    @Transactional
+    public void clearCart(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        if (!(user instanceof Customer)) {
+            throw new BadRequestException("User is not a customer.");
+        }
+        Customer customer = (Customer) user;
+        Cart cart = customer.getCart();
+        if (cart != null && cart.getItems() != null) {
+            cart.getItems().clear();
+            cartRepository.save(cart);
+        }
     }
 }
