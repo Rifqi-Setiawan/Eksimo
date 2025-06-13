@@ -12,7 +12,7 @@ public interface ProductService {
     ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO, MultipartFile image);
     ProductResponseDTO getProductById(Long productId);
     ProductListResponseDTO getAllProducts();
-    ProductResponseDTO updateProduct(Long productId, ProductRequestDTO productRequestDTO);
+    ProductResponseDTO updateProduct(Long productId, ProductRequestDTO productRequestDTO, MultipartFile image);
     void deleteProduct(Long productId);
     List<ProductResponseDTO> getProductsByCategory(Long categoryId);
 }

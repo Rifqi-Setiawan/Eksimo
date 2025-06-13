@@ -31,39 +31,40 @@ public class ProductServiceImpl implements ProductService {
     private CategoryRepository categoryRepository;
 
     @Override
-@Transactional
-public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO, MultipartFile image) {
-    Category category = categoryRepository.findById(productRequestDTO.getCategoryId())
-            .orElseThrow(() -> new ResourceNotFoundException(
-                    "Category not found with id: " + productRequestDTO.getCategoryId()));
+    @Transactional
+    public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO, MultipartFile image) {
+        Category category = categoryRepository.findById(productRequestDTO.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Category not found with id: " + productRequestDTO.getCategoryId()));
 
-    Product product = new Product();
-    product.setName(productRequestDTO.getName());
-    product.setDescription(productRequestDTO.getDescription());
-    product.setPrice(productRequestDTO.getPrice());
-    product.setStock(productRequestDTO.getStock());
-    product.setCategory(category);
-    product.setAverageRating(0.0);
+        Product product = new Product();
+        product.setName(productRequestDTO.getName());
+        product.setDescription(productRequestDTO.getDescription());
+        product.setPrice(productRequestDTO.getPrice());
+        product.setStock(productRequestDTO.getStock());
+        product.setCategory(category);
+        product.setAverageRating(0.0);
 
-    // Simpan file gambar
-    String imagePath = null;
-    if (image != null && !image.isEmpty()) {
-        try {
-            String uploadDir = "../frontend/public/images/products/";
-            String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
-            Path filePath = Paths.get(uploadDir, filename);
-            Files.createDirectories(filePath.getParent());
-            image.transferTo(filePath.toFile());
-            imagePath = "/images/products/" + filename;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to save image file", e);
+        // Simpan file gambar
+        String imagePath = null;
+        if (image != null && !image.isEmpty()) {
+            try {
+                String uploadDir = "D:/college/semester 4/PBO/Tubes/tubes_PBO_Frontend/front-end-eksimo/images/products/";
+                String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+                Path filePath = Paths.get(uploadDir, filename);
+                Files.createDirectories(filePath.getParent());
+                image.transferTo(filePath.toFile());
+                imagePath = "/images/products/" + filename;
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException("Failed to save image file: " + e.getMessage(), e);
+            }
         }
-    }
-    product.setImage(imagePath);
+        product.setImage(imagePath);
 
-    Product savedProduct = productRepository.save(product);
-    return mapToProductResponseDTO(savedProduct);
-}
+        Product savedProduct = productRepository.save(product);
+        return mapToProductResponseDTO(savedProduct);
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -86,7 +87,7 @@ public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO, Mul
 
     @Override
     @Transactional
-    public ProductResponseDTO updateProduct(Long productId, ProductRequestDTO productRequestDTO) {
+    public ProductResponseDTO updateProduct(Long productId, ProductRequestDTO productRequestDTO, MultipartFile image) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
 
@@ -99,7 +100,24 @@ public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO, Mul
         product.setPrice(productRequestDTO.getPrice());
         product.setStock(productRequestDTO.getStock());
         product.setCategory(category);
-        product.setImage(productRequestDTO.getImage()); // gunakan image, bukan images
+
+        // Path upload sama seperti add
+        String uploadDir = "D:/college/semester 4/PBO/Tubes/tubes_PBO_Frontend/front-end-eksimo/images/products/";
+
+        if (image != null && !image.isEmpty()) {
+            try {
+                Files.createDirectories(Paths.get(uploadDir));
+                String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+                Path filePath = Paths.get(uploadDir, filename);
+                image.transferTo(filePath.toFile());
+                String imagePath = "/images/products/" + filename;
+                product.setImage(imagePath);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException("Failed to save image file: " + e.getMessage(), e);
+            }
+        }
+        // Jika tidak upload gambar baru, biarkan gambar lama
 
         Product updatedProduct = productRepository.save(product);
         return mapToProductResponseDTO(updatedProduct);

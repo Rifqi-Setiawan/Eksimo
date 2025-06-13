@@ -51,11 +51,11 @@ public class AdminController {
     }
 
     @PutMapping("/products/{productId}")
-    public ResponseEntity<ProductResponseDTO> updateProduct(
+    public ProductResponseDTO updateProduct(
             @PathVariable Long productId,
-            @Valid @RequestBody ProductRequestDTO productRequestDTO) {
-        ProductResponseDTO updatedProduct = productService.updateProduct(productId, productRequestDTO);
-        return ResponseEntity.ok(updatedProduct);
+            @RequestPart("product") ProductRequestDTO productRequestDTO,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        return productService.updateProduct(productId, productRequestDTO, image);
     }
 
     @DeleteMapping("/products/{productId}")
@@ -91,5 +91,5 @@ public class AdminController {
         orderRepository.save(order);
         return ResponseEntity.ok("Order status updated to " + status);
     }
-    
+
 }
