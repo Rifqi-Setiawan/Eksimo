@@ -101,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(productRequestDTO.getStock());
         product.setCategory(category);
 
-        // Path upload sama seperti add
+        // Path image
         String uploadDir = "D:/college/semester 4/PBO/Tubes/tubes_PBO_Frontend/front-end-eksimo/images/products/";
 
         if (image != null && !image.isEmpty()) {
@@ -117,7 +117,6 @@ public class ProductServiceImpl implements ProductService {
                 throw new RuntimeException("Failed to save image file: " + e.getMessage(), e);
             }
         }
-        // Jika tidak upload gambar baru, biarkan gambar lama
 
         Product updatedProduct = productRepository.save(product);
         return mapToProductResponseDTO(updatedProduct);
