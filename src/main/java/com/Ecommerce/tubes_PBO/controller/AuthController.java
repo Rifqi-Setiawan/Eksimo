@@ -27,6 +27,9 @@ public class AuthController {
     @Autowired
     private com.Ecommerce.tubes_PBO.security.CustomUserDetailsService userDetailsService; 
 
+    @Autowired
+    private com.Ecommerce.tubes_PBO.service.AuthService authService;
+    
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequestDTO loginRequestDTO) {
         try {
@@ -44,5 +47,9 @@ public class AuthController {
         }
     }
 
-
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        authService.logoutUser();
+        return ResponseEntity.ok("Logout successful");
+    }
 }

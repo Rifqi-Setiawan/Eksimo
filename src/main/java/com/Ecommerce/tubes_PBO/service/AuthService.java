@@ -46,7 +46,7 @@ public class AuthService {
         customer.setName(registerRequestDTO.getName());
         customer.setAddress(registerRequestDTO.getAddress());
         customer.setPhoneNumber(registerRequestDTO.getPhoneNumber());
-        customer.setRole(com.Ecommerce.tubes_PBO.enums.UserRole.CUSTOMER); 
+        customer.setRole(com.Ecommerce.tubes_PBO.enums.UserRole.CUSTOMER);
 
         return userRepository.save(customer);
     }
@@ -56,18 +56,20 @@ public class AuthService {
      *
      * @param loginRequestDTO DTO containing login data (username and password).
      * @return Authentication object if successful.
-     * @throws org.springframework.security.core.AuthenticationException if authentication fails.
+     * @throws org.springframework.security.core.AuthenticationException if
+     *                                                                   authentication
+     *                                                                   fails.
      */
     public Authentication loginUser(LoginRequestDTO loginRequestDTO) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequestDTO.getUsername(), 
-                        loginRequestDTO.getPassword() 
-                )
-        );
+                        loginRequestDTO.getUsername(),
+                        loginRequestDTO.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication); //
         return authentication; //
     }
 
-    
+    public void logoutUser() {
+        SecurityContextHolder.clearContext();
+    }
 }
