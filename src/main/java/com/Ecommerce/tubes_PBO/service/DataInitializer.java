@@ -46,7 +46,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeCategories() {
-    List<String> categoryNames = Arrays.asList("Baju", "Celana", "Jaket"); // <-- perbaiki di sini
+    List<String> categoryNames = Arrays.asList("Baju", "Outer", "Accessories"); 
 
     for (String name : categoryNames) {
         if (!categoryRepository.findByName(name).isPresent()) {
@@ -59,19 +59,19 @@ public class DataInitializer implements CommandLineRunner {
 }
 
     private void initializeProducts() {
-        // Ambil kategori dari database
-        Optional<Category> bajuOpt = categoryRepository.findByName("Baju");
-        Optional<Category> celanaOpt = categoryRepository.findByName("Celana");
-        Optional<Category> jaketOpt = categoryRepository.findByName("Jaket");
 
-        if (bajuOpt.isEmpty() || celanaOpt.isEmpty() || jaketOpt.isEmpty()) {
+        Optional<Category> bajuOpt = categoryRepository.findByName("Baju");
+        Optional<Category> outerOpt = categoryRepository.findByName("Outer");
+        Optional<Category> accOpt = categoryRepository.findByName("Accessories");
+
+        if (bajuOpt.isEmpty() || outerOpt.isEmpty() || accOpt.isEmpty()) {
             System.out.println("Kategori belum lengkap, produk tidak diinisialisasi.");
             return;
         }
 
         Category baju = bajuOpt.get();
-        Category celana = celanaOpt.get();
-        Category jaket = jaketOpt.get();
+        Category outer = outerOpt.get();
+        Category accessories = accOpt.get();
 
         Product p1 = new Product();
         p1.setName("Topi");
@@ -79,7 +79,7 @@ public class DataInitializer implements CommandLineRunner {
         p1.setPrice(50000);
         p1.setStock(100);
         p1.setImage("/images/products/topi.jpg"); 
-        p1.setCategory(baju);
+        p1.setCategory(accessories);
 
         Product p2 = new Product();
         p2.setName("Sweater");
@@ -87,7 +87,7 @@ public class DataInitializer implements CommandLineRunner {
         p2.setPrice(120000);
         p2.setStock(50);
         p2.setImage("/images/products/sweater.jpg");
-        p2.setCategory(celana);
+        p2.setCategory(outer);
 
         Product p3 = new Product();
         p3.setName("Kaos Kaki");
@@ -95,7 +95,7 @@ public class DataInitializer implements CommandLineRunner {
         p3.setPrice(150000);
         p3.setStock(30);
         p3.setImage("/images/products/kaosKaki.jpg");
-        p3.setCategory(jaket);
+        p3.setCategory(accessories);
 
         Product p4 = new Product();
         p4.setName("Kaos");
@@ -106,6 +106,6 @@ public class DataInitializer implements CommandLineRunner {
         p4.setCategory(baju);
 
         productRepository.saveAll(List.of(p1, p2, p3, p4));
-        System.out.println("5 produk berhasil diinisialisasi. 🛒");
+        System.out.println("4 produk berhasil diinisialisasi. 🛒");
     }
 }
