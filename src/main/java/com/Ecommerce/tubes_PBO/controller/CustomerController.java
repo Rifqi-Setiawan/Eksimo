@@ -4,6 +4,7 @@ import com.Ecommerce.tubes_PBO.dto.AddToCartRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.CartResponseDTO;
 import com.Ecommerce.tubes_PBO.dto.CheckoutRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.CheckoutResponseDTO;
+import com.Ecommerce.tubes_PBO.dto.CheckoutSingle;
 import com.Ecommerce.tubes_PBO.dto.CustomerProfileDTO;
 import com.Ecommerce.tubes_PBO.dto.OrderHistoryItemDTO;
 import com.Ecommerce.tubes_PBO.dto.ProductListResponseDTO;
@@ -186,29 +187,13 @@ public class CustomerController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/checkout/item/{cartItemId}")
+    @PostMapping("/checkout/product/{productId}")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<CheckoutResponseDTO> checkoutSingleItem(
-            @PathVariable Long cartItemId,
-            @RequestBody CheckoutRequestDTO checkoutRequest,
+    public ResponseEntity<CheckoutResponseDTO> checkoutSingleProduct(
+            @PathVariable Long productId,
+            @RequestBody CheckoutSingle checkoutRequest,
             Authentication authentication) {
         String username = authentication.getName();
-
-        // Ambil cart customer
-        CartResponseDTO cart = cartService.getCartByUsername(username);
-
-        // Cari cartItem yang sesuai
-        var cartItemOpt = cart.getItems().stream()
-                .filter(item -> item.getCartItemId().equals(cartItemId))
-                .findFirst();
-
-        if (cartItemOpt.isEmpty()) {
-            CheckoutResponseDTO response = new CheckoutResponseDTO();
-            response.setMessage("Cart item not found.");
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        var cartItem = cartItemOpt.get();
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -216,39 +201,38 @@ public class CustomerController {
             throw new RuntimeException("User is not a customer");
         }
 
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        int quantity = checkoutRequest.getQuantity() != null ? checkoutRequest.getQuantity() : 1;
+
         // Buat Order baru
         Order order = new Order();
         order.setCustomer(customer);
         order.setOrderDate(java.time.LocalDateTime.now());
         order.setStatus(com.Ecommerce.tubes_PBO.enums.OrderStatus.PENDING);
-        order.setTotalAmount(cartItem.getQuantity() * cartItem.getPricePerUnit());
+        order.setTotalAmount(quantity * product.getPrice());
         order.setShippingAddress(checkoutRequest.getShippingAddress());
         order.setPaymentMethod(checkoutRequest.getPaymentMethod());
-
-        // Ambil Product dari repository
-        Product product = productRepository.findById(cartItem.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
 
         // Buat OrderItem
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(order);
         orderItem.setProduct(product);
-        orderItem.setQuantity(cartItem.getQuantity());
-        orderItem.setUnitPrice(cartItem.getPricePerUnit());
-        orderItem.setTotalPrice(cartItem.getPricePerUnit() * cartItem.getQuantity());
+        orderItem.setQuantity(quantity);
+        orderItem.setUnitPrice(product.getPrice());
+        orderItem.setTotalPrice(product.getPrice() * quantity);
+        order.setOrderNumber("ORD-" + System.currentTimeMillis());
 
         order.setOrderItems(List.of(orderItem));
 
         // Simpan order ke database
         orderRepository.save(order);
 
-        // Hapus item dari cart
-        cartService.removeItemFromCart(username, cartItemId);
-
         // Response
         CheckoutResponseDTO response = new CheckoutResponseDTO();
         response.setOrderId(order.getId());
-        response.setMessage("Checkout successful for single item.");
+        response.setMessage("Checkout successful for single product.");
         return ResponseEntity.ok(response);
     }
 
