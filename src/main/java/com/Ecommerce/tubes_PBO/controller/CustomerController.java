@@ -4,6 +4,7 @@ import com.Ecommerce.tubes_PBO.dto.AddToCartRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.CartResponseDTO;
 import com.Ecommerce.tubes_PBO.dto.CheckoutRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.CheckoutResponseDTO;
+import com.Ecommerce.tubes_PBO.dto.OrderHistoryItemDTO;
 import com.Ecommerce.tubes_PBO.dto.ProductListResponseDTO;
 import com.Ecommerce.tubes_PBO.dto.ProductResponseDTO;
 import com.Ecommerce.tubes_PBO.dto.RegisterRequestDTO;
@@ -250,4 +251,30 @@ public class CustomerController {
         response.setMessage("Checkout successful for single item.");
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/orders/history")
+@PreAuthorize("hasRole('CUSTOMER')")
+public ResponseEntity<List<OrderHistoryItemDTO>> getOrderHistory(Authentication authentication) {
+    String username = authentication.getName();
+    User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    if (!(user instanceof Customer customer)) {
+        throw new RuntimeException("User is not a customer");
+    }
+
+    List<Order> orders = orderRepository.findByCustomer(customer);
+    List<OrderHistoryItemDTO> history = orders.stream()
+        .flatMap(order -> order.getOrderItems().stream().map(orderItem -> {
+            OrderHistoryItemDTO dto = new OrderHistoryItemDTO();
+            dto.setOrderId(order.getId());
+            dto.setProductName(orderItem.getProduct().getName());
+            dto.setProductImage(orderItem.getProduct().getImage());
+            dto.setStatus(order.getStatus().name());
+            dto.setTotal(orderItem.getTotalPrice());
+            return dto;
+        }))
+        .toList();
+
+    return ResponseEntity.ok(history);
+}
 }
