@@ -4,6 +4,7 @@ import com.Ecommerce.tubes_PBO.dto.AddToCartRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.CartResponseDTO;
 import com.Ecommerce.tubes_PBO.dto.CheckoutRequestDTO;
 import com.Ecommerce.tubes_PBO.dto.CheckoutResponseDTO;
+import com.Ecommerce.tubes_PBO.dto.CustomerProfileDTO;
 import com.Ecommerce.tubes_PBO.dto.OrderHistoryItemDTO;
 import com.Ecommerce.tubes_PBO.dto.ProductListResponseDTO;
 import com.Ecommerce.tubes_PBO.dto.ProductResponseDTO;
@@ -154,7 +155,6 @@ public class CustomerController {
         order.setPaymentMethod(checkoutRequest.getPaymentMethod());
         order.setOrderNumber("ORD-" + System.currentTimeMillis());
 
-
         // Konversi CartItem ke OrderItem
         List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {
             OrderItem orderItem = new OrderItem();
@@ -253,28 +253,41 @@ public class CustomerController {
     }
 
     @GetMapping("/orders/history")
-@PreAuthorize("hasRole('CUSTOMER')")
-public ResponseEntity<List<OrderHistoryItemDTO>> getOrderHistory(Authentication authentication) {
-    String username = authentication.getName();
-    User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-    if (!(user instanceof Customer customer)) {
-        throw new RuntimeException("User is not a customer");
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<List<OrderHistoryItemDTO>> getOrderHistory(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (!(user instanceof Customer customer)) {
+            throw new RuntimeException("User is not a customer");
+        }
+
+        List<Order> orders = orderRepository.findByCustomer(customer);
+        List<OrderHistoryItemDTO> history = orders.stream()
+                .flatMap(order -> order.getOrderItems().stream().map(orderItem -> {
+                    OrderHistoryItemDTO dto = new OrderHistoryItemDTO();
+                    dto.setOrderId(order.getId());
+                    dto.setProductName(orderItem.getProduct().getName());
+                    dto.setProductImage(orderItem.getProduct().getImage());
+                    dto.setStatus(order.getStatus().name());
+                    dto.setTotal(orderItem.getTotalPrice());
+                    return dto;
+                }))
+                .toList();
+
+        return ResponseEntity.ok(history);
     }
 
-    List<Order> orders = orderRepository.findByCustomer(customer);
-    List<OrderHistoryItemDTO> history = orders.stream()
-        .flatMap(order -> order.getOrderItems().stream().map(orderItem -> {
-            OrderHistoryItemDTO dto = new OrderHistoryItemDTO();
-            dto.setOrderId(order.getId());
-            dto.setProductName(orderItem.getProduct().getName());
-            dto.setProductImage(orderItem.getProduct().getImage());
-            dto.setStatus(order.getStatus().name());
-            dto.setTotal(orderItem.getTotalPrice());
-            return dto;
-        }))
-        .toList();
-
-    return ResponseEntity.ok(history);
-}
+    @GetMapping("/profile")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<?> getProfile(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (!(user instanceof Customer customer)) {
+            return ResponseEntity.badRequest().body("User is not a customer");
+        }
+        return ResponseEntity.ok(new CustomerProfileDTO(customer.getName(), customer.getAddress(),
+                customer.getPhoneNumber(), customer.getUsername()));
+    }
 }
