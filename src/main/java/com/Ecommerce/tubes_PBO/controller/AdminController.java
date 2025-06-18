@@ -44,6 +44,12 @@ public class AdminController {
         return ResponseEntity.ok(productData);
     }
 
+    @GetMapping("/products/{productId}")
+    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long productId) {
+        ProductResponseDTO product = productService.getProductById(productId);
+        return ResponseEntity.ok(product);
+    }
+    
     @PutMapping("/products/{productId}")
     public ProductResponseDTO updateProduct(
             @PathVariable Long productId,
