@@ -47,7 +47,7 @@ public class SecurityConfig {
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
         .csrf(csrf -> csrf.disable())
-        .cors(cors -> {}) // aktifkan CORS
+        .cors(cors -> {}) // mengaktifkan CORS
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )

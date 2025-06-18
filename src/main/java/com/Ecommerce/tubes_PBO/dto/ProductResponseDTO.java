@@ -10,7 +10,7 @@ public class ProductResponseDTO {
     private Integer price;
     private Integer stock;
     private CategoryInfoDTO category; 
-    private String image; // ubah dari images ke image
+    private String image; 
     private Double averageRating;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

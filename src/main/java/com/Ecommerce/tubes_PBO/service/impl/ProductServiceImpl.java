@@ -100,8 +100,6 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productRequestDTO.getPrice());
         product.setStock(productRequestDTO.getStock());
         product.setCategory(category);
-
-        // Path image
         String uploadDir = "D:/college/semester 4/PBO/Tubes/tubes_PBO_Frontend/front-end-eksimo/images/products/";
 
         if (image != null && !image.isEmpty()) {
@@ -129,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrice());
         dto.setStock(product.getStock());
-        dto.setImage(product.getImage()); // gunakan image, bukan images
+        dto.setImage(product.getImage()); 
         dto.setAverageRating(product.getAverageRating());
         dto.setCreatedAt(product.getCreatedAt());
         dto.setUpdatedAt(product.getUpdatedAt());

@@ -10,21 +10,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@ControllerAdvice // Menjadikan kelas ini sebagai global exception handler
+@ControllerAdvice 
 public class GlobalExceptionHandler {
-
-    // Handler untuk ResourceNotFoundException
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorDetails> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(
                 new Date(),
-                ex.getMessage(), // Pesan dari exception
-                request.getDescription(false), // Deskripsi URI request
-                HttpStatus.NOT_FOUND.value() // Kode status
+                ex.getMessage(), 
+                request.getDescription(false), 
+                HttpStatus.NOT_FOUND.value() 
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }

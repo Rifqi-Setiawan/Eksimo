@@ -8,6 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
-    // Opsional, bisa juga difilter dari cart.getItems() jika EAGER
     Optional<CartItem> findByCartAndProduct(Cart cart, Product product);
 }

@@ -129,11 +129,7 @@ public class CustomerController {
             @RequestBody CheckoutRequestDTO checkoutRequest,
             Authentication authentication) {
         String username = authentication.getName();
-
-        // Ambil cart customer
         CartResponseDTO cart = cartService.getCartByUsername(username);
-
-        // Validasi cart tidak kosong
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
             CheckoutResponseDTO response = new CheckoutResponseDTO();
             response.setMessage("Cart is empty, cannot checkout.");
@@ -145,8 +141,6 @@ public class CustomerController {
         if (!(user instanceof Customer customer)) {
             throw new RuntimeException("User is not a customer");
         }
-
-        // Buat Order baru
         Order order = new Order();
         order.setCustomer(customer);
         order.setOrderDate(java.time.LocalDateTime.now());
@@ -155,13 +149,9 @@ public class CustomerController {
         order.setShippingAddress(checkoutRequest.getShippingAddress());
         order.setPaymentMethod(checkoutRequest.getPaymentMethod());
         order.setOrderNumber("ORD-" + System.currentTimeMillis());
-
-        // Konversi CartItem ke OrderItem
         List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
-
-            // Ambil Product dari repository
             Product product = productRepository.findById(cartItem.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found"));
             orderItem.setProduct(product);
@@ -173,14 +163,8 @@ public class CustomerController {
         }).toList();
 
         order.setOrderItems(orderItems);
-
-        // Simpan order ke database
         orderRepository.save(order);
-
-        // Kosongkan cart customer (opsional)
         cartService.clearCart(username);
-
-        // Response
         CheckoutResponseDTO response = new CheckoutResponseDTO();
         response.setOrderId(order.getId());
         response.setMessage("Checkout successful, order created.");
@@ -205,8 +189,6 @@ public class CustomerController {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         int quantity = checkoutRequest.getQuantity() != null ? checkoutRequest.getQuantity() : 1;
-
-        // Buat Order baru
         Order order = new Order();
         order.setCustomer(customer);
         order.setOrderDate(java.time.LocalDateTime.now());
@@ -214,8 +196,6 @@ public class CustomerController {
         order.setTotalAmount(quantity * product.getPrice());
         order.setShippingAddress(checkoutRequest.getShippingAddress());
         order.setPaymentMethod(checkoutRequest.getPaymentMethod());
-
-        // Buat OrderItem
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(order);
         orderItem.setProduct(product);
@@ -223,13 +203,8 @@ public class CustomerController {
         orderItem.setUnitPrice(product.getPrice());
         orderItem.setTotalPrice(product.getPrice() * quantity);
         order.setOrderNumber("ORD-" + System.currentTimeMillis());
-
         order.setOrderItems(List.of(orderItem));
-
-        // Simpan order ke database
         orderRepository.save(order);
-
-        // Response
         CheckoutResponseDTO response = new CheckoutResponseDTO();
         response.setOrderId(order.getId());
         response.setMessage("Checkout successful for single product.");

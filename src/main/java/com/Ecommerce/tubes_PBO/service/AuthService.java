@@ -50,16 +50,6 @@ public class AuthService {
 
         return userRepository.save(customer);
     }
-
-    /**
-     * Authenticates a user based on login credentials.
-     *
-     * @param loginRequestDTO DTO containing login data (username and password).
-     * @return Authentication object if successful.
-     * @throws org.springframework.security.core.AuthenticationException if
-     *                                                                   authentication
-     *                                                                   fails.
-     */
     public Authentication loginUser(LoginRequestDTO loginRequestDTO) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
