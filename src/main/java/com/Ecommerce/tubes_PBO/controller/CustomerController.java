@@ -89,7 +89,6 @@ public class CustomerController {
     }
 
     @GetMapping("/cart")
-    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CartResponseDTO> getMyCart(Authentication authentication) {
         String username = authentication.getName();
         CartResponseDTO cart = cartService.getCartByUsername(username);
@@ -97,7 +96,6 @@ public class CustomerController {
     }
 
     @DeleteMapping("/cart/items/{cartItemId}")
-    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CartResponseDTO> removeItemFromCart(
             @PathVariable Long cartItemId,
             Authentication authentication) {
@@ -107,7 +105,6 @@ public class CustomerController {
     }
 
     @PutMapping("/cart/items/{cartItemId}")
-    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CartResponseDTO> updateCartItemQuantity(
             @PathVariable Long cartItemId,
             @RequestParam Integer quantity,
@@ -124,7 +121,6 @@ public class CustomerController {
     }
 
     @PostMapping("/checkout")
-    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CheckoutResponseDTO> checkout(
             @RequestBody CheckoutRequestDTO checkoutRequest,
             Authentication authentication) {
@@ -172,7 +168,6 @@ public class CustomerController {
     }
 
     @PostMapping("/checkout/product/{productId}")
-    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CheckoutResponseDTO> checkoutSingleProduct(
             @PathVariable Long productId,
             @RequestBody CheckoutSingle checkoutRequest,
@@ -212,7 +207,6 @@ public class CustomerController {
     }
 
     @GetMapping("/orders/history")
-    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<List<OrderHistoryItemDTO>> getOrderHistory(Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
@@ -238,7 +232,6 @@ public class CustomerController {
     }
 
     @GetMapping("/profile")
-    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<?> getProfile(Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)

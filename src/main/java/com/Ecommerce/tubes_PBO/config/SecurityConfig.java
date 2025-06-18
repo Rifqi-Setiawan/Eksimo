@@ -52,7 +52,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**", "/api/customer/register", "/products/**", "/categories/**").permitAll()
+            .requestMatchers("/api/auth/**", "/api/customer/register").permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
             .anyRequest().authenticated()
